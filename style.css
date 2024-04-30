@@ -7,6 +7,24 @@
     font-family: 'Poppins', sans-serif;
 }
 
+#progress {
+    height: 5px;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    background-color: rgb(44, 160, 255);
+    width: 100%;
+    scale: 0 1;
+    transform-origin: left;
+
+    animation: scroll-watcher linear;
+    animation-timeline: scroll(y);
+}
+
+@keyframes scroll-watcher {
+    to { scale: 1 1;}
+}
+
 header {
     display: flex;
     justify-content: space-between;
@@ -50,17 +68,28 @@ header nav a:hover > a:not(:hover) {
 }
 
 .home {
-    display: flex;
-    height: 100dvh;
-    background: linear-gradient(to top, #e0affc 30%, #9b59b6);
+    display: flexbox;
+    height: 200dvh;
+    background: linear-gradient(to top, #9b59b6 , #ddb0f7, #e0affc , #9b59b6);
     position: relative;
     overflow: hidden;
+    z-index: 1;
+}
+
+.home2 {
+    display: flex;
+    height: 1600px;
+    background: linear-gradient(to top, #9b59b6 30%,  #e0affc);
+    position: relative;
+    overflow: hidden;
+    z-index: 2;
 }
 
 .home img {
     position: absolute;
     pointer-events: none;
 }
+
 .home .title {
     position: absolute;
     top: 50%;
@@ -70,12 +99,27 @@ header nav a:hover > a:not(:hover) {
     font-size: 80px;
     text-shadow: 0 px 0 px 4 px rgba(0, 0, 0, 0.25);
 }
+
 .home .chara {
     position: absolute;
     align-items: center;
+    width: 600px;
+    height: auto;
+    top: -1%;
     left: 50%;
-    top: -20%;
     transform: translate(-50%, 25%);
+    transition: transform 0.3s ease;
+}
+
+.home2 .chara1 {
+    position: absolute;
+    align-items: center;
+    width: 850px; 
+    height: auto;
+    top: 28%;
+    left: 55%;
+    transition: transform 0.3s ease;
+}
 
 .about {
     padding: 50px;
