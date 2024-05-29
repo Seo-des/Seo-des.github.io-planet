@@ -1,0 +1,1 @@
+const stopScrollZoomHeight = 100;
