@@ -5,46 +5,57 @@ stretchElements.forEach(element => {
     const rect = element.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
+
     initialSizes[element] = {
         width: (rect.width / viewportWidth) * 77,
         height: (rect.height / viewportHeight) * 77
     };
 });
 
+let isUpdating = false;
+
 const updateStretch = (event) => {
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    if (isUpdating) return; // Prevent multiple updates in the same frame
+    isUpdating = true;
 
-    stretchElements.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        const mouseX = event.clientX ? event.clientX + scrollX : scrollX + window.innerWidth / 2;
-        const mouseY = event.clientY ? event.clientY + scrollY : scrollY + window.innerHeight / 2;
-        const centerX = rect.left + scrollX + rect.width / 2;
-        const centerY = rect.top + scrollY + rect.height / 2;
-        const distanceX = Math.abs(mouseX - centerX);
-        const distanceY = Math.abs(mouseY - centerY);
+    requestAnimationFrame(() => {
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
 
-        const maxStretchPercentage = 5; // Maximum stretch amount as a percentage
+        stretchElements.forEach((element) => {
+            const rect = element.getBoundingClientRect();
+            const mouseX = event.clientX + scrollX || scrollX + window.innerWidth / 2;
+            const mouseY = event.clientY + scrollY || scrollY + window.innerHeight / 2;
+            const centerX = rect.left + scrollX + rect.width / 2;
+            const centerY = rect.top + scrollY + rect.height / 2;
+            const distanceX = Math.abs(mouseX - centerX);
+            const distanceY = mouseY - centerY; // Positive if below center, negative if above
 
-        const initialWidthPercentage = initialSizes[element].width;
-        const initialHeightPercentage = initialSizes[element].height;
+            const maxStretchPercentage = 5;
 
-        // Calculate the maximum distance to maintain aspect ratio
-        const maxDistance = Math.max(distanceX, distanceY);
+            const initialWidthPercentage = initialSizes[element].width;
+            const initialHeightPercentage = initialSizes[element].height;
 
-        // Calculate the new dimensions as a percentage of the viewport
-        const newWidthPercentage = Math.min(
-            initialWidthPercentage + (maxDistance / window.innerWidth) * maxStretchPercentage,
-            initialWidthPercentage + maxStretchPercentage
-        );
-        const newHeightPercentage = Math.min(
-            initialHeightPercentage + (maxDistance / window.innerHeight) * maxStretchPercentage,
-            initialHeightPercentage + maxStretchPercentage
-        );
+            // Calculate new width based on horizontal distance
+            const newWidthPercentage = Math.min(
+                initialWidthPercentage + (distanceX / window.innerWidth) * maxStretchPercentage,
+                initialWidthPercentage + maxStretchPercentage
+            );
 
-        element.style.width = `${newWidthPercentage}%`;
-        element.style.height = `${newHeightPercentage}%`;
+            // For height, stretch down when mouse goes down, and contract when moving up
+            let newHeightPercentage = initialHeightPercentage;
+
+            if (distanceY > 0) { // Mouse is below the center
+                newHeightPercentage += (distanceY / window.innerHeight) * maxStretchPercentage;
+            } else if (distanceY < 0) { // Mouse is above the center
+                newHeightPercentage = Math.max(initialHeightPercentage, newHeightPercentage + (distanceY / window.innerHeight) * maxStretchPercentage);
+            }
+
+            element.style.width = `${newWidthPercentage}%`;
+            element.style.height = `${newHeightPercentage}%`;
+        });
+
+        isUpdating = false; // Allow for the next update
     });
 };
 
